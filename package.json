@@ -3,13 +3,6 @@
     "dependencies": {
         "highcharts-export-server": "^2.0.13"
     },
-    "devDependencies": {
-        "@types/node": "^10.3.4",
-        "@types/webpack": "^4.4.1",
-        "webpack": "^4.11.1",
-        "webpack-cli": "^3.0.2",
-        "aws-sdk": "^2.247.1"
-    },
     "scripts": {
         "webpack": "npx webpack --config webpack.config.js"
     }
