@@ -15,7 +15,7 @@ const config = {
     },
     target: "node",
     output: {
-        filename: "[name]/index.js",
+        filename: "index.js",
         path: path.join(__dirname, "build"),
         libraryTarget: "commonjs"
     }

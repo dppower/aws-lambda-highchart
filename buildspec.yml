@@ -9,7 +9,7 @@ phases:
       - npm install
   build:
     commands:
-      - npm run deploy
+      - npm run webpack
 artifacts:
   files:
     - "build/index.js"
