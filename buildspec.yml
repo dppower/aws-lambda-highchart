@@ -13,5 +13,6 @@ phases:
 artifacts:
   files:
     - "build/index.js"
-    - "node_modules/.bin/phantomjs*"
+    - "node_modules/.bin/phantomjs"
+    - "node_modules/.bin/phantomjs.cmd"
   

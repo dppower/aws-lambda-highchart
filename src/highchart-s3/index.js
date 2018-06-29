@@ -3,8 +3,6 @@ const exporter = require('highcharts-export-server');
 
 const s3_client = new S3();
 
-exporter.initPool();
-
 function CreateChart(settings) {
     return new Promise((resolve, reject) => {
         exporter.export(settings, (err, res) =>{
@@ -14,7 +12,8 @@ function CreateChart(settings) {
     })
 }
 
-exports.handler = async (event) => {
+exports.handler = async () => {
+    exporter.initPool();
 
     const chart_settings = {
         type: 'png',
@@ -40,9 +39,12 @@ exports.handler = async (event) => {
 
     try {
         let chart = await CreateChart(chart_settings);
-        await s3_client.putObject({ Bucket: "dppower-bucket", Key: `my_chart.png`, Body: chart.data }).promise();
+        let data = new Buffer(chart.data, "base64");
+        await s3_client.putObject({ Bucket: "dppower-bucket", Key: `my-chart.png`, Body: data }).promise();
     }
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);
     }
+    
+    exporter.killPool();
 };
