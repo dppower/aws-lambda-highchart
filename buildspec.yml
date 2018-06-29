@@ -8,6 +8,6 @@ phases:
       - npm install
 artifacts:
   files:
-    - "build/index.js"
+    - "src/index.js"
     - "node_modules"
   
