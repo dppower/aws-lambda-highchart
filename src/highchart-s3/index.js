@@ -45,6 +45,6 @@ exports.handler = async () => {
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);
     }
-    
+
     exporter.killPool();
 };
