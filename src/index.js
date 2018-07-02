@@ -35,7 +35,7 @@ exports.handler = async () => {
                 }
             ]
         },
-        callback: function(chart) {
+        callback: `function(chart) {
             chart.renderer.label('This label is added in the callback', 100, 100)
             .attr({
                 fill : '#90ed7d',
@@ -48,7 +48,7 @@ exports.handler = async () => {
                 width: '100px'
             })
             .add();
-        }
+        }`
     };
 
     try {
