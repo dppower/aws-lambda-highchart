@@ -91,6 +91,10 @@ Resources:
                   description: "200 response"
                   schema:
                     $ref: "#/definitions/Title"
+                "500":
+                  description: "500 response"
+                  schema:
+                    $ref: "#/definitions/Error"
               security:
               - api_key: []
               x-amazon-apigateway-request-validator: "Validate body"
@@ -110,6 +114,8 @@ Resources:
             name: "x-api-key"
             in: "header"
         definitions:
+          Error:
+            type: "object"
           Title:
             type: "object"
             required:
