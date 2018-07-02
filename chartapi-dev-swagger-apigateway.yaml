@@ -1,0 +1,66 @@
+---
+swagger: "2.0"
+info:
+  version: "2018-07-02T15:03:38Z"
+  title: "chartapi"
+host: "vct6bvo0q9.execute-api.us-east-2.amazonaws.com"
+basePath: "/dev"
+schemes:
+- "https"
+paths:
+  /save-chart:
+    post:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "ChartOptions"
+        required: true
+        schema:
+          $ref: "#/definitions/ChartOptions"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+      security:
+      - api_key: []
+      x-amazon-apigateway-request-validator: "Validate body"
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:us-east-2:lambda:path/2015-03-31/functions/arn:aws:lambda:us-east-2:954156161205:function:saveChart/invocations"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "x-api-key"
+    in: "header"
+definitions:
+  Empty:
+    type: "object"
+    title: "Empty Schema"
+  ChartOptions:
+    type: "object"
+    required:
+    - "callback"
+    - "options"
+    - "type"
+    properties:
+      type:
+        type: "string"
+      options:
+        type: "object"
+        properties: {}
+      callback:
+        type: "string"
+x-amazon-apigateway-request-validators:
+  Validate body:
+    validateRequestParameters: false
+    validateRequestBody: true

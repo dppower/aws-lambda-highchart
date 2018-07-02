@@ -1,7 +1,31 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
+Outputs:
+  ApiKeyLocation:
+    Description: The location of the api key needed to make requests, set header "x-api-key"
+      to value provided there
+    Value: 
+      Fn::Sub: https://${AWS::Region}.console.aws.amazon.com/apigateway/home#/api-keys/${APIKey}
+  SaveChartUrl:
+    Description: The url to make requests
+    Value:
+      Fn::Join:
+      - ''
+      - - https://
+        - Ref: RestApi
+        - .execute-api.
+        - Ref: AWS::Region
+        - .amazonaws.com
+        - /dev/save-chart
+
 Parameters:
+  APIName:
+    AllowedPattern: ^[a-zA-Z][a-zA-Z0-9]*$
+    Description: Name of the API
+    MaxLength: '20'
+    MinLength: '3'
+    Type: String
   ChartOutputBucket:
     Type: String
     Description: The name of the bucket to save charts
@@ -28,3 +52,135 @@ Resources:
         Environment:
           Variables:
             BUCKETNAME: !Ref ChartOutputBucket
+
+  LambdaPermissions:
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+        - PhantomLambda
+        - Arn
+      Principal: apigateway.amazonaws.com
+    Type: AWS::Lambda::Permission
+
+  RestApi:
+    Properties:
+      Body:
+        swagger: "2.0"
+        info:
+          version: "2018-07-02T15:03:38Z"
+          title: "chartapi"
+        basePath: "/dev"
+        schemes:
+        - "https"
+        paths:
+          /save-chart:
+            post:
+              consumes:
+              - "application/json"
+              produces:
+              - "application/json"
+              parameters:
+              - in: "body"
+                name: "ChartOptions"
+                required: true
+                schema:
+                  $ref: "#/definitions/ChartOptions"
+              responses:
+                "200":
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+              security:
+              - api_key: []
+              x-amazon-apigateway-request-validator: "Validate body"
+              x-amazon-apigateway-integration:
+                uri: 
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PhantomLambda.Arn}/invocations
+                responses:
+                  default:
+                    statusCode: "200"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                contentHandling: "CONVERT_TO_TEXT"
+                type: "aws_proxy"
+        securityDefinitions:
+          api_key:
+            type: "apiKey"
+            name: "x-api-key"
+            in: "header"
+        definitions:
+          Empty:
+            type: "object"
+            title: "Empty Schema"
+          ChartOptions:
+            type: "object"
+            required:
+            - "callback"
+            - "options"
+            - "type"
+            properties:
+              type:
+                type: "string"
+              options:
+                type: "object"
+                properties: {}
+              callback:
+                type: "string"
+        x-amazon-apigateway-request-validators:
+          Validate body:
+            validateRequestParameters: false
+            validateRequestBody: true
+      EndpointConfiguration:
+        Types:
+        - EDGE
+    Type: AWS::ApiGateway::RestApi
+
+  APIKey:
+    Properties:
+      Enabled: true
+      Name:
+        Fn::Sub: ${AWS::StackName}-${APIName}-Key
+    Type: AWS::ApiGateway::ApiKey
+
+  UsagePlan:
+    Properties:
+      ApiStages:
+      - ApiId:
+          Ref: RestApi
+        Stage:
+          Ref: DevelopmentStage
+      Quota:
+        Limit: 1000000
+        Period: MONTH
+      Throttle:
+        BurstLimit: 200
+        RateLimit: 100
+      UsagePlanName:
+        Fn::Sub: ${AWS::StackName}-${APIName}-DeveloperUsage
+    Type: AWS::ApiGateway::UsagePlan
+
+  UsagePlanKey:
+    Properties:
+      KeyId:
+        Ref: APIKey
+      KeyType: API_KEY
+      UsagePlanId:
+        Ref: UsagePlan
+    Type: AWS::ApiGateway::UsagePlanKey
+
+  Deployment:
+    Properties:
+      RestApiId:
+        Ref: RestApi
+      StageName: default
+    Type: AWS::ApiGateway::Deployment
+
+  DevelopmentStage:
+    Properties:
+      DeploymentId:
+        Ref: Deployment
+      RestApiId:
+        Ref: RestApi
+      StageName: dev
+    Type: AWS::ApiGateway::Stage
