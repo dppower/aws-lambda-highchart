@@ -6,8 +6,13 @@ phases:
   install:
     commands:
       - npm install
+  build:
+    commands:
+      - npx webpack --config webpack.config.js
+      - npx webpack --config phantom-package.js
+      - mkdir ./build/node_modules/phantomjs-prebuilt/phantom
+      - cp -r ./node_modules/phantomjs-prebuilt/lib/phantom/ ./build/node_modules/phantomjs-prebuilt/phantom/
 artifacts:
   files:
-    - "src/index.js"
-    - "node_modules/**/*"
+    - "./build/**/*"
   

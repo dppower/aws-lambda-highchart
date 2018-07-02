@@ -39,8 +39,21 @@ exports.handler = async () => {
 
     try {
         let chart = await CreateChart(chart_settings);
+        chart.renderer.label('This label is added in the callback', 100, 100)
+            .attr({
+                fill : '#90ed7d',
+                padding: 10,
+                r: 10,
+                zIndex: 10
+            })
+            .css({
+                color: 'black',
+                width: '100px'
+            })
+            .add();
+            
         let data = new Buffer(chart.data, "base64");
-        await s3_client.putObject({ Bucket: "dppower-bucket", Key: `my-chart.png`, Body: data }).promise();
+        await s3_client.putObject({ Bucket: process.env.BUCKETNAME, Key: `my-chart.png`, Body: data }).promise();
     }
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);

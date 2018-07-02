@@ -8,5 +8,12 @@ Resources:
     Properties:
         Handler: index.handler
         Runtime: nodejs8.10
-        
-        CodeUri: .
+        Policies:
+          - AmazonS3FullAccess      
+        CodeUri: "s3://dppower-bucket/build-test/highcharts-lambda"
+        Environment:
+          Variables:
+            BUCKETNAME: !Ref ChartBucket
+  
+  ChartBucket:
+    Type: AWS::S3::Bucket

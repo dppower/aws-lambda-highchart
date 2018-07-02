@@ -5,12 +5,15 @@ const path = require("path");
  */
 const config = {   
     entry: {
-        "highchart-s3": "./src/highchart-s3/index.js"
+        "highchart-s3": "./src/index.js"
     },
-    mode: "production",
+    mode: "development",
     externals: {
         "aws-sdk":  {
             commonjs: "aws-sdk"
+        },
+        "phantomjs-prebuilt": {
+            commonjs: "phantomjs-prebuilt"
         }
     },
     target: "node",
