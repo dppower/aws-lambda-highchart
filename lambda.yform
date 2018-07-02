@@ -1,19 +1,30 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: First working Lambda Pipeline
+
+Parameters:
+  ChartOutputBucket:
+    Type: String
+    Description: The name of the bucket to save charts
+  CodeBucket:
+    Type: String
+    Description: The bucket name containing the lambda package
+  CodePackage:
+    Type: String
+    Description: The name of the lambda package <path>/<package-name>
 
 Resources:
   PhantomLambda:
     Type: AWS::Serverless::Function
     Properties:
-        Handler: index.handler
+        Handler: "src/index.handler"
         Runtime: nodejs8.10
         Policies:
-          - AmazonS3FullAccess      
-        CodeUri: "s3://dppower-bucket/build-test/highcharts-lambda"
+          - AmazonS3FullAccess
+        Timeout: 10
+        MemorySize: 512     
+        CodeUri:
+          Bucket: !Ref CodeBucket
+          Key: !Ref CodePackage
         Environment:
           Variables:
-            BUCKETNAME: !Ref ChartBucket
-  
-  ChartBucket:
-    Type: AWS::S3::Bucket
+            BUCKETNAME: !Ref ChartOutputBucket
