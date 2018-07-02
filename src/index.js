@@ -17,6 +17,7 @@ exports.handler = async (event) => {
 
     let chart_settings = JSON.parse(event.body);
     let title = (chart_settings.options && chart_settings.options.title && chart_settings.options.title.text) || `${Date.now()}-test-chart`;
+    title = title.toLowerCase().split(' ').join('-') + "-" + Date.now();
 
     try {
         let chart = await CreateChart(chart_settings);
@@ -33,6 +34,7 @@ exports.handler = async (event) => {
     exporter.killPool();
 
     return {
-        statusCode: 200
+        statusCode: 200,
+        body: title
     };
 };
