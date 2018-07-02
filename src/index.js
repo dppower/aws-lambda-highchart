@@ -16,11 +16,12 @@ exports.handler = async (event) => {
     exporter.initPool();
 
     let chart_settings = JSON.parse(event.body);
+    let title = (chart_settings.options && chart_settings.options.title && chart_settings.options.title.text) || `${Date.now()}-test-chart`;
 
     try {
         let chart = await CreateChart(chart_settings);
         let data = new Buffer(chart.data, "base64");
-        await s3_client.putObject({ Bucket: process.env.BUCKETNAME, Key: `${(chart_settings.options && chart_settings.options.title) || "test-chart"}.png`, Body: data }).promise();
+        await s3_client.putObject({ Bucket: process.env.BUCKETNAME, Key: `${title}.png`, Body: data }).promise();
     }
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);
