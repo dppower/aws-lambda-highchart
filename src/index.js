@@ -34,12 +34,9 @@ exports.handler = async () => {
                     data: [5, 3, 4, 2]
                 }
             ]
-        }
-    };
-
-    try {
-        let chart = await CreateChart(chart_settings);
-        chart.renderer.label('This label is added in the callback', 100, 100)
+        },
+        callback: function(chart) {
+            chart.renderer.label('This label is added in the callback', 100, 100)
             .attr({
                 fill : '#90ed7d',
                 padding: 10,
@@ -51,7 +48,11 @@ exports.handler = async () => {
                 width: '100px'
             })
             .add();
-            
+        }
+    };
+
+    try {
+        let chart = await CreateChart(chart_settings);
         let data = new Buffer(chart.data, "base64");
         await s3_client.putObject({ Bucket: process.env.BUCKETNAME, Key: `my-chart.png`, Body: data }).promise();
     }
