@@ -90,7 +90,7 @@ Resources:
                 "200":
                   description: "200 response"
                   schema:
-                    $ref: "#/definitions/Empty"
+                    $ref: "#/definitions/Title"
               security:
               - api_key: []
               x-amazon-apigateway-request-validator: "Validate body"
@@ -110,9 +110,13 @@ Resources:
             name: "x-api-key"
             in: "header"
         definitions:
-          Empty:
+          Title:
             type: "object"
-            title: "Empty Schema"
+            required:
+              - "title"
+            properties:
+              title:
+                type: "string"
           ChartOptions:
             type: "object"
             required:
