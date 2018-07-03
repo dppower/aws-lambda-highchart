@@ -35,7 +35,7 @@ exports.handler = async (event) => {
     }
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);
-        return `Error: Failed to parse request body. ${e.message}`
+        return new Error(`Error: Failed to parse request body. ${e.message}`);
     }
  
     let chart;
@@ -44,7 +44,7 @@ exports.handler = async (event) => {
     }
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);
-        return `Error: Failed to create chart. ${e.message}`;
+        return new Error(`Error: Failed to create chart. ${e.message}`);
     }
 
     let public_url;
@@ -61,7 +61,7 @@ exports.handler = async (event) => {
     }
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);
-        return `Error: Failed to save chart to S3 bucket. ${e.message}`;
+        return new Error(`Error: Failed to save chart to S3 bucket. ${e.message}`);
     }
 
     exporter.killPool();
