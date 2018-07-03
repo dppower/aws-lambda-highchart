@@ -1,5 +1,6 @@
 const { S3 } = require("aws-sdk");
 const exporter = require('highcharts-export-server');
+const qs = require('qs');
 
 const s3_client = new S3();
 
@@ -14,9 +15,15 @@ function CreateChart(settings) {
 
 exports.handler = async (event) => {
     exporter.initPool();
-
-    console.log(`event body: ${JSON.stringify(event)}`);
-    let chart_settings = JSON.parse(event.body);
+    
+    let chart_settings
+    if (event.params.header["Content-Type"] === "application/x-www-form-urlencoded") {
+        chart_settings = qs.parse(event.body);
+    }
+    else {
+        chart_settings = JSON.parse(event.body);
+    }
+    console.log(chart_settings);
     let title = (chart_settings.options && chart_settings.options.title && chart_settings.options.title.text) || `${Date.now()}-test-chart`;
     title = title.toLowerCase().split(' ').join('-') + "-" + Date.now();
     let ext = chart_settings.type;
