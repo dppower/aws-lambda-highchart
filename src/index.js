@@ -15,6 +15,7 @@ function CreateChart(settings) {
 exports.handler = async (event) => {
     exporter.initPool();
 
+    console.log(`event body: ${JSON.stringify(event)}`);
     let chart_settings = JSON.parse(event.body);
     let title = (chart_settings.options && chart_settings.options.title && chart_settings.options.title.text) || `${Date.now()}-test-chart`;
     title = title.toLowerCase().split(' ').join('-') + "-" + Date.now();
