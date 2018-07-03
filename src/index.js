@@ -17,23 +17,38 @@ function CreateChart(settings) {
 exports.handler = async (event) => {
     exporter.initPool();
 
-    let chart_settings
-    if (event.params.header["Content-Type"] === "application/x-www-form-urlencoded") {
-        chart_settings = qs.parse(event.body);
-        chart_settings["options"] = JSON.parse(chart_settings["options"]);
-    }
-    else {
-        chart_settings = JSON.parse(event.body);
-    }
-
-    delete chart_settings["async"];
-
-    let ext = chart_settings.type.split("/").slice(-1)[0];
-    let filename = uuidv1() + "." + ext;
-
-    let location;
+    let chart_settings;
+    let filename;
     try {
-        let chart = await CreateChart(chart_settings);
+        if (event.params.header["Content-Type"] === "application/x-www-form-urlencoded") {
+            chart_settings = qs.parse(event.body);
+            chart_settings["options"] = JSON.parse(chart_settings["options"]);
+        }
+        else {
+            chart_settings = JSON.parse(event.body);
+        }
+
+        delete chart_settings["async"];
+
+        let ext = chart_settings.type.split("/").slice(-1)[0];
+        filename = uuidv1() + "." + ext;
+    }
+    catch (e) {
+        console.log(`error: ${JSON.stringify(e)}`);
+        return `Error: Failed to parse request body. ${e.message}`
+    }
+ 
+    let chart;
+    try {
+        chart = await CreateChart(chart_settings);
+    }
+    catch (e) {
+        console.log(`error: ${JSON.stringify(e)}`);
+        return `Error: Failed to create chart. ${e.message}`;
+    }
+
+    let public_url;
+    try {
         let data = new Buffer(chart.data, "base64");
         let response = await s3_client.upload({ 
             Bucket: process.env.BUCKETNAME, 
@@ -42,20 +57,14 @@ exports.handler = async (event) => {
             ACL: "public-read",  
             ContentDisposition: `attachment; filename='${filename}'` 
         }).promise();
-        location = response.Location;
+        public_url = response.Location;
     }
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ message: "Failed to save file to S3 bucket" })
-        };
+        return `Error: Failed to save chart to S3 bucket. ${e.message}`;
     }
 
     exporter.killPool();
 
-    return {
-        statusCode: 200,
-        body: JSON.stringify({ title: location })
-    };
+    return public_url;
 };
