@@ -29,7 +29,7 @@ exports.handler = async (event) => {
     delete chart_settings["async"];
 
     let ext = chart_settings.type.split("/").slice(-1)[0];
-    let filename = uuidv1() + ext;
+    let filename = uuidv1() + "." + ext;
 
     let location;
     try {
