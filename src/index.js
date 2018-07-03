@@ -19,11 +19,15 @@ exports.handler = async (event) => {
     let chart_settings
     if (event.params.header["Content-Type"] === "application/x-www-form-urlencoded") {
         chart_settings = qs.parse(event.body);
+        chart_settings["options"] = JSON.parse(chart_settings["options"]);
     }
     else {
         chart_settings = JSON.parse(event.body);
     }
+
+    delete chart_settings["async"];
     console.log(chart_settings);
+    
     let title = (chart_settings.options && chart_settings.options.title && chart_settings.options.title.text) || `${Date.now()}-test-chart`;
     title = title.toLowerCase().split(' ').join('-') + "-" + Date.now();
     let ext = chart_settings.type;
