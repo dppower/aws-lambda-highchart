@@ -1,6 +1,7 @@
 {
     "name": "highcharts-s3",
     "dependencies": {
-        "highcharts-export-server": "^2.0.13"
+        "highcharts-export-server": "^2.0.13",
+        "uuid": "^3.3.2"
     }
 }
