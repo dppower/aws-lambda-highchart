@@ -29,12 +29,15 @@ Parameters:
   ChartOutputBucket:
     Type: String
     Description: The name of the bucket to save charts
-  CodeBucket:
+  InputsBucket:
     Type: String
-    Description: The bucket name containing the lambda package
+    Description: The bucket name containing the lambda package and api definition yaml file
   CodePackage:
     Type: String
     Description: The name of the lambda package <path>/<package-name>
+  ApiDefintion:
+    Type: String
+    Description: The name of the api defintion yaml file
 
 Resources:
   PhantomLambda:
@@ -47,7 +50,7 @@ Resources:
         Timeout: 10
         MemorySize: 512     
         CodeUri:
-          Bucket: !Ref CodeBucket
+          Bucket: !Ref InputsBucket
           Key: !Ref CodePackage
         Environment:
           Variables:
@@ -65,82 +68,9 @@ Resources:
 
   RestApi:
     Properties:
-      Body:
-        swagger: "2.0"
-        info:
-          version: "2018-07-02T15:03:38Z"
-          title: "chartapi"
-        basePath: "/dev"
-        schemes:
-        - "https"
-        paths:
-          /save-chart:
-            post:
-              consumes:
-              - "application/json"
-              produces:
-              - "application/json"
-              parameters:
-              - in: "body"
-                name: "ChartOptions"
-                required: true
-                schema:
-                  $ref: "#/definitions/ChartOptions"
-              responses:
-                "200":
-                  description: "200 response"
-                  schema:
-                    $ref: "#/definitions/Title"
-                "500":
-                  description: "500 response"
-                  schema:
-                    $ref: "#/definitions/Error"
-              security:
-              - api_key: []
-              x-amazon-apigateway-request-validator: "Validate body"
-              x-amazon-apigateway-integration:
-                uri: 
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PhantomLambda.Arn}/invocations
-                responses:
-                  default:
-                    statusCode: "200"
-                passthroughBehavior: "when_no_match"
-                httpMethod: "POST"
-                contentHandling: "CONVERT_TO_TEXT"
-                type: "aws_proxy"
-        securityDefinitions:
-          api_key:
-            type: "apiKey"
-            name: "x-api-key"
-            in: "header"
-        definitions:
-          Error:
-            type: "object"
-          Title:
-            type: "object"
-            required:
-              - "title"
-            properties:
-              title:
-                type: "string"
-          ChartOptions:
-            type: "object"
-            required:
-            - "callback"
-            - "options"
-            - "type"
-            properties:
-              type:
-                type: "string"
-              options:
-                type: "object"
-                properties: {}
-              callback:
-                type: "string"
-        x-amazon-apigateway-request-validators:
-          Validate body:
-            validateRequestParameters: false
-            validateRequestBody: true
+      BodyS3Location:
+        Bucket: !Ref InputsBucket
+        Key: !Ref ApiDefintion
       EndpointConfiguration:
         Types:
         - EDGE

@@ -30,12 +30,13 @@ exports.handler = async (event) => {
 
         delete chart_settings["async"];
 
-        let ext = chart_settings.type.split("/").slice(-1)[0];
+        let type = chart_settings.type || "jpeg";
+        let ext = type.split("/").slice(-1)[0];
         filename = uuidv1() + "." + ext;
     }
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);
-        throw new Error(`Error: Failed to parse request body. ${e.message}`);
+        throw new Error(`Invalid: Failed to parse request body.`);
     }
  
     let chart;
@@ -44,7 +45,7 @@ exports.handler = async (event) => {
     }
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);
-        throw new Error(`Error: Failed to create chart. ${e.message}`);
+        throw new Error(`Invalid: Failed to create chart. Check the chart options.`);
     }
 
     let public_url;
@@ -61,7 +62,7 @@ exports.handler = async (event) => {
     }
     catch (e) {
         console.log(`error: ${JSON.stringify(e)}`);
-        throw new Error(`Error: Failed to save chart to S3 bucket. ${e.message}`);
+        throw new Error(`Error: Failed to save chart to S3 bucket. Try again later.`);
     }
 
     exporter.killPool();
