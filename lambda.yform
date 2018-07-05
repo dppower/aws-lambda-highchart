@@ -45,7 +45,7 @@ Resources:
         Policies:
           - AmazonS3FullAccess
         Timeout: 10
-        MemorySize: 512     
+        MemorySize: 1280     
         CodeUri:
           Bucket: !Ref CodeBucket
           Key: !Ref CodePackage
