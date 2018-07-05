@@ -5,6 +5,12 @@ const uuidv1 = require('uuid/v1');
 
 const s3_client = new S3();
 
+exporter.initPool({
+    maxWorkers: 8,
+    initialWorkers: 8,
+    workLimit: 20
+});
+
 function CreateChart(settings) {
     return new Promise((resolve, reject) => {
         exporter.export(settings, (err, res) => {
@@ -15,8 +21,6 @@ function CreateChart(settings) {
 }
 
 exports.handler = async (event) => {
-    exporter.initPool();
-
     let chart_settings;
     let filename;
     try {
@@ -64,8 +68,6 @@ exports.handler = async (event) => {
         console.log(`error: ${JSON.stringify(e)}`);
         throw new Error(`Error: Failed to save chart to S3 bucket. Try again later.`);
     }
-
-    exporter.killPool();
 
     return public_url;
 };
